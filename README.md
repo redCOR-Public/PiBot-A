@@ -1,2 +1,2 @@
 # PiBot-A
-redCOR's public modules
+Robot based on http://www.retas.de/thomas/raspberrypi/pibot-a/index.html#download
