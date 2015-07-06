@@ -1,0 +1,63 @@
+#!/bin/bash
+# ========================================================
+# Bash script for controlling Raspberry Pi's status LED
+# Version 1.0 - by Thomas Schoch - www.retas.de
+# ========================================================
+
+function usage
+{
+    echo '
+    led0 on  (or 1)  - switch LED on
+    led0 off (or 0)  - switch LED off
+    led0 hb          - pulse like heartbeat
+    led0 <n> <m>     - pulse <n> ms on, <m> ms off
+    led0 sd          - show SD card activity
+'
+    exit 1
+}
+
+if (( $(id -u) != 0 ))
+then
+	echo "You must be root to do this."
+	exit 2
+fi
+
+cd /sys/class/leds/led0
+
+# we accept 1 or 2 arguments
+#
+if (( $# == 1 ))
+then
+    # single argument: must be on, off, hb or def
+    #
+    case $1
+    in 1|on)  mode=1
+    ;; 0|off) mode=0
+    ;; hb|sd) mode=$1
+    ;; *)     usage
+    esac
+    if [[ $mode = hb ]]
+    then
+        modprobe ledtrig_heartbeat
+        echo heartbeat > trigger
+    elif [[ $mode = sd ]]
+    then
+        echo mmc0 > trigger
+    else
+        echo none > trigger
+        echo $mode > brightness
+    fi
+elif (( $# == 2 ))
+then
+    # 2 arguments: must be numeric
+    #
+    shopt -s extglob
+    [[ $1 = +([0-9]) && $2 = +([0-9]) ]] || usage
+    modprobe ledtrig_timer
+    echo timer > trigger
+    echo $1 > delay_on
+    echo $2 > delay_off
+else
+    usage
+fi
+exit 0

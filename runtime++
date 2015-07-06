@@ -1,0 +1,16 @@
+#!/bin/bash
+# ========================================================
+# Bash script for operation hours counter
+# Version 1.0 - by Thomas Schoch - www.retas.de
+# ========================================================
+
+# File runtime has format: "00:00 0" (time HH:MM and min).
+# The script is called every minute by cron and increments
+# the above values.
+
+file=/home/pi/sys/runtime
+read HHMM min <$file
+(( min += 1 ))
+(( HH = min / 60 ))
+(( MM = min - HH * 60 ))
+printf "%02d:%02d $min\n" $HH $MM >$file
